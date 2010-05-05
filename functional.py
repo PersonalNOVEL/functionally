@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from decorator import decorator
+
 def identity(x):
     "Returns x unchanged."
     return x
