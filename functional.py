@@ -12,3 +12,12 @@ def some(pred, coll):
         if pred(elem):
             return elem
     return None
+
+def first(coll):
+    if hasattr(coll, 'iteritems'):
+        return coll.iteritems().next()
+
+    elif hasattr(coll, 'items'):
+        return coll.items[0]
+
+    return coll[0]
