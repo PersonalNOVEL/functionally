@@ -5,6 +5,14 @@ def identity(x):
     "Returns x unchanged."
     return x
 
+def constantly(result):
+    """ Returns a function that takes any arguments, ignores them and always
+        returns `result`.
+    """
+    def constantly_wrapper(*args, **kw):
+        return result
+    return constantly_wrapper
+
 def some(pred, coll):
     "Returns the first element x in coll where pred(x) is logical true, otherwise None."
 
