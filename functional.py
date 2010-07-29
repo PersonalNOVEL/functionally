@@ -22,20 +22,31 @@ def some(pred, coll):
     return None
 
 def first(coll):
-    "Returns the first item in coll. For dictlikes, returns the first k, v tuple."
+    """Returns the first item in coll. For dictlikes, returns the first k, v tuple.
+       Raises IndexError if coll is empty.
+    """
     if hasattr(coll, 'iteritems'):
-        return coll.iteritems().next()
+        try:
+            return coll.iteritems().next()
+        except StopIteration, ex:
+            raise IndexError(*ex.args)
 
     elif hasattr(coll, 'items'):
         return coll.items()[0]
 
     elif hasattr(coll, 'next'):
-        return coll.next()
+        try:
+            return coll.next()
+        except StopIteration, ex:
+            raise IndexError(*ex.args)
 
     elif hasattr(coll, '__getslice__'):
         return coll[0]
 
     elif hasattr(coll, '__iter__'):
-        return iter(coll).next()
+        try:
+            return iter(coll).next()
+        except StopIteration, ex:
+            raise IndexError(*ex.args)
 
     return coll[0]
