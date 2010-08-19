@@ -1,29 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from itertools import imap
+
 def identity(x):
     "Returns x unchanged."
     return x
 
 def constantly(result):
-    """ Returns a function that takes any arguments, ignores them and always
-        returns `result`.
+    """ Returns a function that will take any arguments, ignore them and always
+        return `result`.
     """
     def constantly_wrapper(*args, **kw):
         return result
     return constantly_wrapper
 
 def some(pred, coll):
-    "Returns the first element x in coll where pred(x) is logical true, otherwise None."
-
+    """ Returns the first element x in coll where pred(x) is logical true.
+        If no such element is found, returns None.
+    """
     for elem in coll:
         if pred(elem):
             return elem
     return None
 
 def first(coll):
-    """Returns the first item in coll. For dictlikes, returns the first k, v tuple.
-       Return None if coll is empty.
+    """ Returns the first item in coll. For dict-like objects, returns the
+        first (k, v) tuple. If coll is empty, returns None.
     """
     if hasattr(coll, 'iteritems'):
         try:
@@ -56,3 +59,17 @@ def first(coll):
             return None
 
     raise NotImplementedError("Type %r not supported by first" % type(coll))
+
+def starchain(coll_of_colls):
+    """ Like itertools.chain, but takes the iterables from a containing iterable
+        instead of *args. This allows coll_of_colls to be lazy.
+    """
+    for coll in coll_of_colls:
+        for elem in coll:
+            yield elem
+
+def mapcat(func, *colls):
+    """ Returns the lazy concatenation of the results from map(func, *coll).
+        Thus, func should return an iterable.
+    """
+    return starchain(imap(func, *colls))
