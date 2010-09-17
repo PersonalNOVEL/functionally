@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from itertools import imap
+from itertools import imap, islice
 
 def identity(x):
     "Returns x unchanged."
@@ -73,3 +73,20 @@ def mapcat(func, *colls):
         Thus, func should return an iterable.
     """
     return starchain(imap(func, *colls))
+
+def partition(seq, n):
+    u""" Returns an iterator of elemens in seq, partitioned into tuples
+         of n elements. If len(seq) is not a multiple of n, the last tuple
+         will contain less than n elements.
+
+    >>> list(partition([1, 2, 3, 4, 5], 3))
+    [(1, 2, 3), (4, 5)]
+    >>> list(partition([]))
+    []
+    """
+    seq = iter(seq)
+    while True:
+        part = tuple(islice(seq, n))
+        if not part:
+            return
+        yield part
