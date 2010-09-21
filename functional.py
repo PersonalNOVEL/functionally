@@ -15,6 +15,49 @@ def constantly(result):
         return result
     return constantly_wrapper
 
+def compose(*fs):
+    """ Takes a list of functions and returns a function that is the composition
+        of these functions. The resulting function takes any arguments and calls the
+        rightmost function with these args, calls the second-but-rightmost function
+        with the result, etc.
+    """
+    if len(fs) == 0:
+        compose_wrapper = constantly(None)
+
+    elif len(fs) == 1:
+        f = fs[0]
+        def compose_wrapper(*a, **k):
+            return f(*a, **k)
+
+    elif len(fs) == 2:
+        f, g = fs
+        def compose_wrapper(*a, **k):
+            return f(g(*a, **k))
+
+    elif len(fs) == 3:
+        f, g, h = fs
+        def compose_wrapper(*a, **k):
+            return f(g(h(*a, **k)))
+
+    else:
+        fs = reversed(fs)
+        def compose_wrapper(*a, **k):
+            result = fs[0](*a, **k)
+            for f in fs[1:]:
+                result = f(result)
+            return result
+
+    names = []
+    for f in fs:
+        try:
+            name = f.__name__
+        except AttributeError:
+            name = 'unknown'
+
+    compose_wrapper.__name__ = 'composed_' + '_'.join(names)
+
+    return compose_wrapper
+
 def some(pred, coll):
     """ Returns the first element x in coll where pred(x) is logical true.
         If no such element is found, returns None.
