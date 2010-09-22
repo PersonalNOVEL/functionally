@@ -122,10 +122,7 @@ def partition(seq, n):
          of n elements. If len(seq) is not a multiple of n, the last tuple
          will contain less than n elements.
 
-    >>> list(partition([1, 2, 3, 4, 5], 3))
-    [(1, 2, 3), (4, 5)]
-    >>> list(partition([]))
-    []
+         partition([1, 2, 3, 4, ...], 2) => [(1, 2), (3, 4), ...]
     """
     seq = iter(seq)
     while True:
