@@ -50,11 +50,12 @@ def compose(*fs):
     names = []
     for f in fs:
         try:
-            name = f.__name__
+            names.append(f.__name__)
         except AttributeError:
-            name = 'unknown'
+            names.append('unknown')
 
-    compose_wrapper.__name__ = 'composed_' + '_'.join(names)
+    if fs:
+        compose_wrapper.__name__ = 'composed_' + '_'.join(names)
 
     return compose_wrapper
 
@@ -67,19 +68,35 @@ def some(pred, coll):
             return elem
     return None
 
+def sequify(coll):
+    """
+    >>> sequify([])
+    []
+    >>> list(sequify({'a': 1, 'b': 2}))
+    [('a', 1), ('b', 2)]
+    >>> sequify('foo')
+    'foo'
+    """
+    if hasattr(coll, 'iteritems'):
+        return coll.iteritems()
+    elif hasattr(coll, 'items'):
+        return coll.items()
+    elif hasattr(coll, '__getslice__'):
+        return coll
+    elif hasattr(coll, '__iter__'):
+        return iter(coll)
+
+    raise NotImplementedError("Don't know how to create sequence from " + type(coll).__name__)
+
 def first(coll):
     """ Returns the first item in coll. For dict-like objects, returns the
         first (k, v) tuple. If coll is empty, returns None.
     """
-    if hasattr(coll, 'iteritems'):
-        try:
-            return coll.iteritems().next()
-        except StopIteration:
-            return None
+    coll = sequify(coll)
 
-    elif hasattr(coll, 'items'):
+    if hasattr(coll, '__getslice__'):
         try:
-            return coll.items()[0]
+            return coll[0]
         except IndexError:
             return None
 
@@ -89,19 +106,28 @@ def first(coll):
         except StopIteration:
             return None
 
-    elif hasattr(coll, '__getslice__'):
-        try:
-            return coll[0]
-        except IndexError:
-            return None
-
     elif hasattr(coll, '__iter__'):
         try:
             return iter(coll).next()
         except StopIteration:
             return None
 
-    raise NotImplementedError("Type %r not supported by first" % type(coll))
+    raise NotImplementedError("Type %r not supported by first" % type(coll).__name_)
+
+def butlast(coll):
+    """
+    >>> butlast([1, 2, 3])
+    [1, 2]
+    >>> butlast({'foo': 1, 'bar': 2})
+    [('foo', 1)]
+    >>> butlast('books')
+    'book'
+    """
+    seq = sequify(coll)
+    if hasattr(seq, '__getslice__'):
+        return seq[:-1]
+
+    return list(seq)[:-1]
 
 def starchain(coll_of_colls):
     """ Like itertools.chain, but takes the iterables from a containing iterable
@@ -130,3 +156,8 @@ def partition(seq, n):
         if not part:
             return
         yield part
+
+
+if __name__ == '__main__':
+    import nose
+    nose.runmodule(argv=[__file__, '--stop', '--with-doctest', '-vvs'])
