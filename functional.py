@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from operator import attrgetter
 from itertools import imap, islice
 
 def identity(x):
@@ -22,11 +23,34 @@ def constantly(result):
         return result
     return constantly_wrapper
 
+def compose2(*funcs):
+    """ Takes a list of functions and returns a function that is the composition
+        of these functions. The resulting function takes one argument and calls the
+        rightmost function with these argument, calls the second-but-rightmost
+        function with the result, etc.
+
+        >>> flip_number = compose2(str, reversed, ''.join, int)
+        >>> flip_number(7331)
+        1337
+        >>> flip_number.__name__
+        'composed_str_reversed_join_int'
+
+    """
+    def composed(arg):
+        for func in funcs:
+            arg = func(arg)
+        return arg
+
+    composed.__name__ = 'composed_%s' % (
+        '_'.join(map(attrgetter('__name__'), funcs)))
+    return composed
+
 def compose(*fs):
     """ Takes a list of functions and returns a function that is the composition
         of these functions. The resulting function takes any arguments and calls the
         rightmost function with these args, calls the second-but-rightmost function
         with the result, etc.
+
     """
     if len(fs) == 0:
         compose_wrapper = constantly(None)
@@ -69,6 +93,17 @@ def compose(*fs):
 def some(pred, coll):
     """ Returns the first element x in coll where pred(x) is logical true.
         If no such element is found, returns None.
+
+        >>> fish_are_blue = lambda x: "blue" in x.lower() and "fish" in x.lower()
+        >>> some(fish_are_blue,
+        ...      ["Red fish", "Green fish", "Blue fish", "Blue and yellow fish"])
+        'Blue fish'
+        >>> some(fish_are_blue,
+        ...      ["Red dog", "Green dog", "Blue dog", "Blue and yellow fish"])
+        'Blue and yellow fish'
+        >>> some(fish_are_blue,
+        ...      ["Red dog", "Green dog", "Blue dog"])
+
     """
     for elem in coll:
         if pred(elem):
