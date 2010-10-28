@@ -10,6 +10,13 @@ def identity(x):
 def constantly(result):
     """ Returns a function that will take any arguments, ignore them and always
         return `result`.
+
+        >>> deaf_guy = constantly('what?')
+        >>> deaf_guy("Penguin")
+        'what?'
+        >>> deaf_guy("Penguin!", "You know.", those="guy's in suits!")
+        'what?'
+
     """
     def constantly_wrapper(*args, **kw):
         return result
@@ -161,11 +168,11 @@ def vertical_partition(seq, n):
     """
         >>> res = vertical_partition(['A', 'A', 'B', 'B', 'C', 'C', 'D', 'D', 'E',
         ...                           'E', 'F', 'F', 'G', 'G', 'H', 'H', 'I'], 4)
-        >>> res= [['A', 'C', 'E', 'G'],
-        ...       ['A', 'D', 'F', 'H'],
-        ...       ['B', 'D', 'F', 'H'],
-        ...       ['B', 'E', 'G', 'I'],
-        ...       ['C']]
+        >>> assert res == [['A', 'C', 'E', 'G'],
+        ...                ['A', 'D', 'F', 'H'],
+        ...                ['B', 'D', 'F', 'H'],
+        ...                ['B', 'E', 'G', 'I'],
+        ...                ['C']]
 
     """
     p = list(partition(seq, n))
@@ -181,6 +188,20 @@ def vertical_partition(seq, n):
             if len(p[ri]) > ni:
                 p[ri][ni] = seq.next()
     return p
+
+def map_all(funcs, iterable):
+    """Takes an iterable of functions(callables) and an iterable.
+       Applies every function in the specified order to each element
+       in the iterable and returns the result as a list.
+
+        >>> map_all([str, reversed, ''.join, int],
+        ...         [7331, 58008])
+        [1337, 80085]
+
+    """
+    for func in funcs:
+        iterable = map(func, iterable)
+    return iterable
 
 
 if __name__ == '__main__':
