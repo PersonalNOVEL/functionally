@@ -23,72 +23,35 @@ def constantly(result):
         return result
     return constantly_wrapper
 
-def compose2(*funcs):
-    """ Takes a list of functions and returns a function that is the composition
-        of these functions. The resulting function takes one argument and calls the
-        rightmost function with these argument, calls the second-but-rightmost
-        function with the result, etc.
-
-        >>> flip_number = compose2(str, reversed, ''.join, int)
-        >>> flip_number(7331)
-        1337
-        >>> flip_number.__name__
-        'composed_str_reversed_join_int'
-
-    """
-    def composed(arg):
-        for func in funcs:
-            arg = func(arg)
-        return arg
-
-    composed.__name__ = 'composed_%s' % (
-        '_'.join(map(attrgetter('__name__'), funcs)))
-    return composed
-
-def compose(*fs):
+def compose(*funcs):
     """ Takes a list of functions and returns a function that is the composition
         of these functions. The resulting function takes any arguments and calls the
         rightmost function with these args, calls the second-but-rightmost function
         with the result, etc.
 
+        >>> flip_number = compose(str, reversed, ''.join, int)
+        >>> flip_number(7331)
+        1337
+        >>> flip_number.__name__
+        'composed_str_reversed_join_int'
+        >>> str2 = compose(str)
+        >>> str2(u'Hello World')
+        'Hello World'
+
     """
-    if len(fs) == 0:
-        compose_wrapper = constantly(None)
+    funcs = list(funcs)
+    assert funcs, 'compose needs at least one argument'
 
-    elif len(fs) == 1:
-        f = fs[0]
-        def compose_wrapper(*a, **k):
-            return f(*a, **k)
+    def composed(*a, **k):
+        result = funcs[0](*a, **k)
+        for func in funcs[1:]:
+            result = func(result)
+        return result
 
-    elif len(fs) == 2:
-        f, g = fs
-        def compose_wrapper(*a, **k):
-            return f(g(*a, **k))
+    composed.__name__ = 'composed_%s' % (
+        '_'.join(map(attrgetter('__name__'), funcs)))
+    return composed
 
-    elif len(fs) == 3:
-        f, g, h = fs
-        def compose_wrapper(*a, **k):
-            return f(g(h(*a, **k)))
-
-    else:
-        fs = reversed(fs)
-        def compose_wrapper(*a, **k):
-            result = fs[0](*a, **k)
-            for f in fs[1:]:
-                result = f(result)
-            return result
-
-    names = []
-    for f in fs:
-        try:
-            names.append(f.__name__)
-        except AttributeError:
-            names.append('unknown')
-
-    if fs:
-        compose_wrapper.__name__ = 'composed_' + '_'.join(names)
-
-    return compose_wrapper
 
 def some(pred, coll):
     """ Returns the first element x in coll where pred(x) is logical true.
@@ -225,7 +188,7 @@ def vertical_partition(seq, n):
     return p
 
 def map_all(funcs, iterable):
-    """Takes an iterable of functions(callables) and an iterable.
+    """Takes an iterable of functions (callables) and an iterable.
        Applies every function in the specified order to each element
        in the iterable and returns the result as a list.
 
@@ -234,9 +197,7 @@ def map_all(funcs, iterable):
         [1337, 80085]
 
     """
-    for func in funcs:
-        iterable = map(func, iterable)
-    return iterable
+    return map(compose(*funcs), iterable)
 
 
 if __name__ == '__main__':
