@@ -113,11 +113,38 @@ def first(coll):
 
     elif hasattr(coll, '__iter__'):
         try:
-            return iter(coll).next()
+            return first(iter(coll))
         except StopIteration:
             return None
 
-    raise NotImplementedError("Type %r not supported by first" % type(coll).__name_)
+    raise NotImplementedError("Can't get first item from type %r" % type(coll).__name_)
+
+def rest(coll):
+    """ Returns all items in coll but the first. For dict-like objects, returns
+        (k, v) tuples except for the 'first' one. If coll is empty, returns None
+    """
+    coll = sequify(coll)
+
+    if hasattr(coll, '__getslice__'):
+        rst = coll[1:]
+        if len(rst) == 0:
+            return None
+        return rst
+
+    elif hasattr(coll, 'next'):
+        try:
+            coll.next()
+            return coll
+        except StopIteration:
+            return None
+
+    elif hasattr(coll, '__iter__'):
+        try:
+            return rest(iter(coll))
+        except StopIteration:
+            return None
+
+    raise NotImplementedError("Can't get rest from type %r" % type(coll).__name_)
 
 def butlast(coll):
     """
@@ -161,6 +188,38 @@ def partition(seq, n):
         if not part:
             return
         yield part
+
+def partition_by(f, coll):
+    u""" Splits coll into partitions, beginning a new partition each time f(x)
+         returns a new value than for the previous element.
+
+    >>> list(partition_by(lambda x: x == 3, [1, 2, 3, 4, 5]))
+    [(1, 2), (3,), (4, 5)]
+    >>> list(partition_by(lambda x: bool(x%2), [1, 3, 5, 2, 4, 6, 7]))
+    [(1, 3, 5), (2, 4, 6), (7,)]
+    >>> list(partition_by(identity, []))
+    []
+    """
+    # HACK: OMG, schlecht implementiert. Das geht alles viel einfacher.
+    fst = first(coll)
+    rst = rest(coll)
+    fprev = f(fst)
+    part = [fst]
+
+    if rst is None:
+        return
+
+    for elem in rst:
+        fnow = f(elem)
+        if fnow != fprev:
+            yield tuple(part)
+            part = []
+        part.append(elem)
+        fprev = fnow
+
+    if part:
+        yield tuple(part)
+
 
 def vertical_partition(seq, n):
     """
