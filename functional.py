@@ -258,6 +258,19 @@ def map_all(funcs, iterable):
     """
     return map(compose(*funcs), iterable)
 
+def map_keys(func, d):
+    """ Returns a new dict with func applied to keys from d, while values
+        remain unchanged.
+    >>> D = {'a': 1, 'b': 2}
+    >>> map_keys(lambda k: k.upper(), D)
+    {'A': 1, 'B': 2}
+    >>> assert map_keys(identity, D) == D
+    >>> map_keys(identity, {})
+    {}
+
+    """
+    return dict((func(k), v) for k, v in d.iteritems())
+
 
 if __name__ == '__main__':
     import nose
