@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from operator import attrgetter
-from itertools import imap, islice
+from itertools import imap, islice, chain
 
 def identity(x):
     "Returns x unchanged."
@@ -145,6 +145,18 @@ def rest(coll):
             return None
 
     raise NotImplementedError("Can't get rest from type %r" % type(coll).__name_)
+
+def cons(x, rst):
+    """ Returns a new iterable where x is the first element and rst is the rest.
+
+    >>> list(cons(1, [2, 3]))
+    [1, 2, 3]
+    >>> list(cons(1, iter([])))
+    [1]
+    >>> list(cons('a', 'bc'))
+    ['a', 'b', 'c']
+    """
+    return chain(iter([x]), rst)
 
 def butlast(coll):
     """
