@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from operator import attrgetter
-from itertools import imap, islice, chain
+from itertools import chain, imap, islice, izip, repeat
 
 def identity(x):
     "Returns x unchanged."
@@ -74,24 +74,24 @@ def some(pred, coll):
     return None
 
 def sequify(coll):
-    """
-    >>> sequify([])
+    """ Returns an iterator on coll, just like iter(coll). dict-like object will
+        be treated as sequences of (key, value) pairs, however.
+
+    >>> list(sequify([]))
     []
     >>> list(sequify({'a': 1, 'b': 2}))
     [('a', 1), ('b', 2)]
-    >>> sequify('foo')
-    'foo'
+    >>> list(sequify('foo'))
+    ['f', 'o', 'o']
+    >>> it = sequify([1, 2])
+    >>> it.next()
+    1
     """
     if hasattr(coll, 'iteritems'):
         return coll.iteritems()
     elif hasattr(coll, 'items'):
         return coll.items()
-    elif hasattr(coll, '__getslice__'):
-        return coll
-    elif hasattr(coll, '__iter__'):
-        return iter(coll)
-
-    raise NotImplementedError("Don't know how to create sequence from " + type(coll).__name__)
+    return iter(coll)
 
 def first(coll):
     """ Returns the first item in coll. For dict-like objects, returns the
@@ -160,18 +160,48 @@ def cons(x, rst):
 
 def butlast(coll):
     """
-    >>> butlast([1, 2, 3])
+    >>> list(butlast([1, 2, 3]))
     [1, 2]
-    >>> butlast({'foo': 1, 'bar': 2})
+    >>> list(butlast({'foo': 1, 'bar': 2}))
     [('foo', 1)]
-    >>> butlast('books')
-    'book'
+    >>> list(butlast('foo'))
+    ['f', 'o']
     """
     seq = sequify(coll)
-    if hasattr(seq, '__getslice__'):
-        return seq[:-1]
+    prev = seq.next()
+    while True:
+        try:
+            curr = seq.next()
+        except StopIteration:
+            return
+        yield prev
+        prev = curr
 
-    return list(seq)[:-1]
+def take(n, coll):
+    """ Returns the first n elements from coll.
+
+    >>> list(take(2, [1, 2, 3, 4]))
+    [1, 2]
+    >>> list(take(0, [1, 2, 3, 4]))
+    []
+    """
+    for elem, _ in izip(sequify(coll), xrange(n)):
+        yield elem
+
+def drop(n, coll):
+    """ Returns all elements in coll but the first n.
+
+    >>> list(drop(2, [1, 2, 3, 4]))
+    [3, 4]
+    >>> list(drop(0, [1, 2, 3, 4]))
+    [1, 2, 3, 4]
+    """
+    coll = sequify(coll)
+    for _ in xrange(n):
+        coll.next()
+    for elem in coll:
+        yield elem
+
 
 def starchain(coll_of_colls):
     """ Like itertools.chain, but takes the iterables from a containing iterable
@@ -288,6 +318,36 @@ def map_keys(func, d):
 
     """
     return dict((func(k), v) for k, v in d.iteritems())
+
+def interleave(*colls):
+    """ Returns an iterator yielding the first element of all colls in turn,
+        then the second , etc. until the shortest coll runs out.
+
+    >>> list(interleave([1, 2, 3], [4, 5]))
+    [1, 4, 2, 5]
+    >>> list(interleave([1, 4], [2, 5], [3, 6]))
+    [1, 2, 3, 4, 5, 6]
+    >>> list(interleave([1, 2, 3], []))
+    []
+    >>> list(interleave([], [], []))
+    []
+    """
+    colls = map(sequify, colls)
+    while True:
+        nexts = [c.next() for c in colls]
+        for elem in nexts:
+            yield elem
+
+
+def interpose(sep, coll):
+    """ Returns all elements in coll separated by sep
+
+    >>> list(interpose('and', [1, 2, 3]))
+    [1, 'and', 2, 'and', 3]
+    >>> list(interpose(42, []))
+    []
+    """
+    return butlast(interleave(coll, repeat(sep)))
 
 
 if __name__ == '__main__':
