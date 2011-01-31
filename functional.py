@@ -105,15 +105,29 @@ def first(coll):
         except IndexError:
             return None
 
-    elif hasattr(coll, 'next'):
+    elif hasattr(coll, '__iter__'):
         try:
-            return coll.next()
+            return iter(coll).next()
         except StopIteration:
+            return None
+
+    raise NotImplementedError("Can't get first item from type %r" % type(coll).__name_)
+
+def second(coll):
+    "Like first, but returns the second item in coll."
+    coll = sequify(coll)
+
+    if hasattr(coll, '__getslice__'):
+        try:
+            return coll[1]
+        except IndexError:
             return None
 
     elif hasattr(coll, '__iter__'):
         try:
-            return first(iter(coll))
+            itr = iter(coll)
+            itr.next()
+            return itr.next()
         except StopIteration:
             return None
 
