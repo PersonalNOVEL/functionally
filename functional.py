@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from operator import attrgetter
 from itertools import chain, imap, islice, izip, repeat
 
 def identity(x):
@@ -48,8 +47,8 @@ def compose(*funcs):
             result = func(result)
         return result
 
-    composed.__name__ = 'composed_%s' % (
-        '_'.join(map(attrgetter('__name__'), funcs)))
+    composed.__name__ = 'composed_%s' % \
+        '_'.join(map(lambda f: getattr(f, '__name__', '???'), funcs))
     return composed
 
 
