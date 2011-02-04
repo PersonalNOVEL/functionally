@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from functools import update_wrapper
 from itertools import chain, imap, islice, izip, repeat
 
 def identity(x):
@@ -50,6 +51,20 @@ def compose(*funcs):
     composed.__name__ = 'composed_%s' % \
         '_'.join(map(lambda f: getattr(f, '__name__', '???'), funcs))
     return composed
+
+def maybe(func):
+    """ Turns func into a nil-safe function.
+
+    >>> float(None)
+    Traceback (most recent call last):
+    ...
+    TypeError: float() argument must be a string or a number
+    >>> maybe(float)(None)
+    >>> maybe(float)(3)
+    3.0
+    """
+    wrapper = lambda x: func(x) if x is not None else None
+    return update_wrapper(wrapper, func)
 
 
 def some(pred, coll):
