@@ -29,11 +29,11 @@ def compose(*funcs):
         rightmost function with these args, calls the second-but-rightmost function
         with the result, etc.
 
-        >>> flip_number = compose(str, reversed, ''.join, int)
+        >>> flip_number = compose(int, ''.join, reversed, str)
         >>> flip_number(7331)
         1337
         >>> flip_number.__name__
-        'composed_str_reversed_join_int'
+        'composed_int_join_reversed_str'
         >>> str2 = compose(str)
         >>> str2(u'Hello World')
         'Hello World'
@@ -43,8 +43,8 @@ def compose(*funcs):
     assert funcs, 'compose needs at least one argument'
 
     def composed(*a, **k):
-        result = funcs[0](*a, **k)
-        for func in funcs[1:]:
+        result = funcs[-1](*a, **k)
+        for func in reversed(funcs[:-1]):
             result = func(result)
         return result
 
