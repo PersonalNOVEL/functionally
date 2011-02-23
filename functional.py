@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from functools import update_wrapper
+import functools
+
 from itertools import chain, imap, islice, izip, repeat
 
 def identity(x):
@@ -51,6 +52,25 @@ def compose(*funcs):
     composed.__name__ = 'composed_%s' % \
         '_'.join(map(lambda f: getattr(f, '__name__', '???'), funcs))
     return composed
+
+# Modified version of functools.update_wrapper to support partial objects etc.
+def update_wrapper(wrapper, wrapped, assigned=functools.WRAPPER_ASSIGNMENTS,
+                   updated=functools.WRAPPER_UPDATES):
+    """Update a wrapper function to look like the wrapped function.
+    See functools.update_wrapper for full documentation.
+    """
+    for attr in assigned:
+        try:
+            setattr(wrapper, attr, getattr(wrapped, attr))
+        except AttributeError:
+            pass
+    for attr in updated:
+        try:
+            getattr(wrapper, attr).update(getattr(wrapped, attr, {}))
+        except AttributeError:
+            pass
+    # Return the wrapper so this can be used as a decorator via partial()
+    return wrapper
 
 def maybe(func):
     """ Turns func into a nil-safe function.
