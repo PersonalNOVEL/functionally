@@ -107,6 +107,16 @@ def some(pred, coll):
             return elem
     return None
 
+def somefx(f, coll):
+    """ Returns the first f(x) for x in coll where f(x) is logical true.
+        If no such element is found, returns None.
+    """
+    for elem in coll:
+        res = f(elem)
+        if res:
+            return res
+    return None
+
 def sequify(coll):
     """ Returns an iterator on coll, just like iter(coll). dict-like object will
         be treated as sequences of (key, value) pairs, however.
