@@ -53,6 +53,19 @@ def compose(*funcs):
         '_'.join(map(lambda f: getattr(f, '__name__', '???'), funcs))
     return composed
 
+def thrush(x, *funcs):
+    """ Pipes x through funcs in the given order. That is, applies the first
+        func to x, applies the second func to the result, etc.
+
+        >>> thrush(1, lambda x: x+2, lambda x: x/2.0)
+        1.5
+        >>> thrush(1, lambda x: x/2.0, lambda x: x+2)
+        2.5
+        >>> thrush('no-op')
+        'no-op'
+    """
+    return reduce(lambda res, f: f(res), funcs, x)
+
 # Modified version of functools.update_wrapper to support partial objects etc.
 def update_wrapper(wrapper, wrapped, assigned=functools.WRAPPER_ASSIGNMENTS,
                    updated=functools.WRAPPER_UPDATES):
