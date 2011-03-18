@@ -189,6 +189,26 @@ def second(coll):
 
     raise NotImplementedError("Can't get second item from type %r" % type(coll).__name_)
 
+def last(coll):
+    "Like first, but returns the last item in coll."
+
+    if hasattr(coll, '__getslice__'):
+        try:
+            return coll[-1]
+        except IndexError:
+            return None
+
+    itr = sequify(coll)
+
+    last = None
+    try:
+        while True:
+            last = itr.next()
+    except StopIteration:
+        return last
+
+    raise NotImplementedError("Can't get last item from type %r" % type(coll).__name_)
+
 def rest(coll):
     """ Returns all items in coll but the first. For dict-like objects, returns
         (k, v) tuples except for the 'first' one. If coll is empty, returns None
