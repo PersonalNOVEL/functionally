@@ -147,14 +147,13 @@ def sequify(coll):
     if hasattr(coll, 'iteritems'):
         return coll.iteritems()
     elif hasattr(coll, 'items'):
-        return coll.items()
+        return iter(coll.items())
     return iter(coll)
 
 def first(coll):
     """ Returns the first item in coll. For dict-like objects, returns the
         first (k, v) tuple. If coll is empty, returns None.
     """
-    coll = sequify(coll)
 
     if hasattr(coll, '__getslice__'):
         try:
@@ -162,17 +161,17 @@ def first(coll):
         except IndexError:
             return None
 
-    elif hasattr(coll, '__iter__'):
-        try:
-            return iter(coll).next()
-        except StopIteration:
-            return None
+    itr = sequify(coll)
+
+    try:
+        return itr.next()
+    except StopIteration:
+        return None
 
     raise NotImplementedError("Can't get first item from type %r" % type(coll).__name_)
 
 def second(coll):
     "Like first, but returns the second item in coll."
-    coll = sequify(coll)
 
     if hasattr(coll, '__getslice__'):
         try:
@@ -180,40 +179,34 @@ def second(coll):
         except IndexError:
             return None
 
-    elif hasattr(coll, '__iter__'):
-        try:
-            itr = iter(coll)
-            itr.next()
-            return itr.next()
-        except StopIteration:
-            return None
+    itr = sequify(coll)
 
-    raise NotImplementedError("Can't get first item from type %r" % type(coll).__name_)
+    try:
+        itr.next()
+        return itr.next()
+    except StopIteration:
+        return None
+
+    raise NotImplementedError("Can't get second item from type %r" % type(coll).__name_)
 
 def rest(coll):
     """ Returns all items in coll but the first. For dict-like objects, returns
         (k, v) tuples except for the 'first' one. If coll is empty, returns None
     """
-    coll = sequify(coll)
 
     if hasattr(coll, '__getslice__'):
         rst = coll[1:]
         if len(rst) == 0:
             return None
-        return rst
+        return iter(rst)
 
-    elif hasattr(coll, 'next'):
-        try:
-            coll.next()
-            return coll
-        except StopIteration:
-            return None
+    itr = sequify(coll)
 
-    elif hasattr(coll, '__iter__'):
-        try:
-            return rest(iter(coll))
-        except StopIteration:
-            return None
+    try:
+        itr.next()
+        return itr
+    except StopIteration:
+        return None
 
     raise NotImplementedError("Can't get rest from type %r" % type(coll).__name_)
 
