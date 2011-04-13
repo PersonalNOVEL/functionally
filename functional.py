@@ -130,6 +130,11 @@ def somefx(f, coll):
             return res
     return None
 
+def filter_attr(attr, coll):
+    """ Acts like filter(attrgetter(attr), coll).
+    """
+    return (elem for elem in coll if getattr(elem, attr))
+
 def sequify(coll):
     """ Returns an iterator on coll, just like iter(coll). dict-like object will
         be treated as sequences of (key, value) pairs, however.
