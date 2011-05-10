@@ -266,6 +266,13 @@ def butlast(coll):
         yield prev
         prev = curr
 
+def split_at(n, coll):
+    """
+    >>> split_at(1, ['Hallo', 'Welt'])
+    (['Hallo'], ['Welt'])
+    """
+    return coll[:n], coll[n:]
+
 def take(n, coll):
     """ Returns the first n elements from coll.
 
