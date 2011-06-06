@@ -3,7 +3,7 @@
 
 import functools
 
-from itertools import chain, imap, islice, izip, repeat
+from itertools import imap, islice, izip, repeat
 
 def identity(x):
     "Returns x unchanged."
@@ -136,8 +136,8 @@ def filter_attr(attr, coll):
     return (elem for elem in coll if getattr(elem, attr))
 
 def sequify(coll):
-    """ Returns an iterator on coll, just like iter(coll). dict-like object will
-        be treated as sequences of (key, value) pairs, however.
+    """ Returns an iterator on coll, just like iter(coll). dict-like objects
+        will be treated as sequences of (key, value) pairs, however.
 
     >>> list(sequify([]))
     []
@@ -245,7 +245,9 @@ def cons(x, rst):
     >>> list(cons('a', 'bc'))
     ['a', 'b', 'c']
     """
-    return chain(iter([x]), rst)
+    yield x
+    for elem in rst:
+        yield elem
 
 def butlast(coll):
     """
