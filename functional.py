@@ -88,16 +88,21 @@ def update_wrapper(wrapper, wrapped, assigned=functools.WRAPPER_ASSIGNMENTS,
 def maybe(func):
     """ Turns func into a nil-safe function.
 
+    >>> float(3)
+    3.0
     >>> float(None)
     Traceback (most recent call last):
     ...
     TypeError: float() argument must be a string or a number
-    >>> maybe(float)(None)
     >>> maybe(float)(3)
     3.0
+    >>> maybe(float)(None)
     """
-    wrapper = lambda x: func(x) if x is not None else None
-    return update_wrapper(wrapper, func)
+    def _maybe(x, *args, **kw):
+        if x is None:
+            return None
+        return func(x, *args, **kw)
+    return update_wrapper(_maybe, func)
 
 
 def some(pred, coll):
