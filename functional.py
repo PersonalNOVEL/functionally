@@ -452,6 +452,14 @@ def interpose(sep, coll):
     """
     return butlast(interleave(coll, repeat(sep)))
 
+def strcat(*xs):
+    res = ""
+    for x in xs:
+        if isinstance(res, unicode):
+            res += unicode(x)
+        else:
+            res += x
+    return res
 
 if __name__ == '__main__':
     import nose
