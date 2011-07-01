@@ -136,7 +136,7 @@ def somefx(f, coll):
     return None
 
 def filter_attr(attr, coll):
-    """ Acts like filter(attrgetter(attr), coll).
+    """ Acts like ifilter(attrgetter(attr), coll).
     """
     return (elem for elem in coll if getattr(elem, attr))
 
