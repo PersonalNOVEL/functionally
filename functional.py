@@ -461,6 +461,17 @@ def strcat(*xs):
             res += x
     return res
 
+def coalesce(*args):
+    """
+    >>> coalesce(None, None, 1, 2, None)
+    1
+    >>> coalesce(3, 2, 1)
+    3
+    >>> coalesce(None, None, None)
+    >>> coalesce()
+    """
+    return some(lambda x: x is not None, args)
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=[__file__, '--stop', '--with-doctest', '-vvs'])
