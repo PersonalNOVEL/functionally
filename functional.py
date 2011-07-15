@@ -24,6 +24,19 @@ def constantly(result):
         return result
     return constantly_wrapper
 
+def delegate(func, *args):
+    """ Takes a function and its regular positional arguments but the first,
+        and returns a one-argument function (that can still take keyword args).
+
+        >>> delegate(isinstance, unicode)(u"Hello!")
+        True
+        >>> delegate(getattr, 'real')(1+1j)
+        1.0
+        >>> delegate(int)("2")
+        2
+    """
+    return lambda x, **kw: func(x, *args, **kw)
+
 def compose(*funcs):
     """ Takes a list of functions and returns a function that is the composition
         of these functions. The resulting function takes any arguments and calls the
@@ -103,7 +116,6 @@ def maybe(func):
             return None
         return func(x, *args, **kw)
     return update_wrapper(_maybe, func)
-
 
 def some(pred, coll):
     """ Returns the first element x in coll where pred(x) is logical true.
