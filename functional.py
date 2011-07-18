@@ -37,6 +37,19 @@ def delegate(func, *args):
     """
     return lambda x, **kw: func(x, *args, **kw)
 
+def complement(func):
+    """ Returns a function that takes the same arguments as `func`, but returns
+        the negated boolean truth value of `func`'s result.
+    """
+    def _complement(*args, **kw):
+        return not func(*args, **kw)
+    update_wrapper(_complement, func)
+    try:
+        _complement.__name__ = _complement.func_name = 'complement_'+func.__name__
+    except AttributeError:
+        pass
+    return _complement
+
 def compose(*funcs):
     """ Takes a list of functions and returns a function that is the composition
         of these functions. The resulting function takes any arguments and calls the
