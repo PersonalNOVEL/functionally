@@ -447,6 +447,15 @@ def map_keys(func, d):
     """
     return dict((func(k), v) for k, v in d.iteritems())
 
+def filter_values(pred, d):
+    """ Returns a new dict with only the k, v pairs where pred(v) holds.
+    >>> D = {'a': 1, 'b': 2, 'c': 3}
+    >>> odd = lambda x: x % 2 != 0
+    >>> filter_values(odd, D)
+    {'a': 1, 'c': 3}
+    """
+    return dict((k, v) for k, v in d.iteritems() if pred(v))
+
 def interleave(*colls):
     """ Returns an iterator yielding the first element of all colls in turn,
         then the second , etc. until the shortest coll runs out.
