@@ -9,6 +9,10 @@ def identity(x):
     "Returns x unchanged."
     return x
 
+def const(x, *args, **kw):
+    "Returns x unchanged, ignoring all other arguments."
+    return x
+
 def constantly(result):
     """ Returns a function that will take any arguments, ignore them and always
         return `result`.
