@@ -164,6 +164,12 @@ def somefx(f, coll):
             return res
     return None
 
+def keep(pred, coll):
+    """ Returns an iterator containing the items x of coll for which pred(x)
+        does not return None.
+    """
+    return (x for x in sequify(coll) if pred(x) is not None)
+
 def filter_attr(attr, coll):
     """ Acts like ifilter(attrgetter(attr), coll).
     """
