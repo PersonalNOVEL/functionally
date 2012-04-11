@@ -544,6 +544,10 @@ def treeleaves(is_branch, children_fn, root):
     >>> listleaves = partial(treeleaves, delegate(isinstance, list), identity)
     >>> list(listleaves([1, [2, 3, [4]], 5]))
     [1, 2, 3, 4, 5]
+    >>> dictleaves = partial(treeleaves, delegate(isinstance, dict), \
+                             lambda d: d.itervalues())
+    >>> sorted(dictleaves({'a': 1, 'b': {'c': {'d': 2, 'e': 3}}, 42: 4, 'f': 5}))
+    [1, 2, 3, 4, 5]
     """
     nodes = treeseq(is_branch, children_fn, root)
     return ifilter(complement(is_branch), nodes)
