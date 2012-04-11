@@ -3,7 +3,8 @@
 
 import functools
 
-from itertools import imap, islice, izip, repeat
+from itertools import imap, ifilter, islice, izip, repeat
+
 
 def identity(x):
     "Returns x unchanged."
@@ -515,6 +516,38 @@ def coalesce(*args):
     >>> coalesce()
     """
     return some(lambda x: x is not None, args)
+
+def treeseq(is_branch, children_fn, root):
+    """ Turns a tree structure into a sequence. `is_branch` should be a unary
+        predicate function that determines whether a node can have children,
+        and `children_fn` should return these children when applied to the node.
+
+    >>> from functools import partial
+    >>> listseq = partial(treeseq, delegate(isinstance, list), identity)
+    >>> list(listseq([1, [2, 3, [4]], 5]))
+    [[1, [2, 3, [4]], 5], 1, [2, 3, [4]], 2, 3, [4], 4, 5]
+    """
+    def walk(node):
+        yield node
+        if is_branch(node):
+            for child in children_fn(node):
+                for x in walk(child):
+                    yield x
+    for x in walk(root):
+        yield x
+
+
+def treeleaves(is_branch, children_fn, root):
+    """ Like treeseq, but only yields the tree's leaf nodes.
+
+    >>> from functools import partial
+    >>> listleaves = partial(treeleaves, delegate(isinstance, list), identity)
+    >>> list(listleaves([1, [2, 3, [4]], 5]))
+    [1, 2, 3, 4, 5]
+    """
+    nodes = treeseq(is_branch, children_fn, root)
+    return ifilter(complement(is_branch), nodes)
+
 
 if __name__ == '__main__':
     import nose
