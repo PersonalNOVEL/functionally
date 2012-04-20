@@ -10,9 +10,11 @@ def identity(x):
     "Returns x unchanged."
     return x
 
+
 def const(x, *args, **kw):
     "Returns x unchanged, ignoring all other arguments."
     return x
+
 
 def constantly(result):
     """ Returns a function that will take any arguments, ignore them and always
@@ -29,6 +31,7 @@ def constantly(result):
         return result
     return constantly_wrapper
 
+
 def delegate(func, *args):
     """ Takes a function and its regular positional arguments but the first,
         and returns a one-argument function (that can still take keyword args).
@@ -42,6 +45,7 @@ def delegate(func, *args):
     """
     return lambda x, **kw: func(x, *args, **kw)
 
+
 def complement(func):
     """ Returns a function that takes the same arguments as `func`, but returns
         the negated boolean truth value of `func`'s result.
@@ -54,6 +58,7 @@ def complement(func):
     except AttributeError:
         pass
     return _complement
+
 
 def compose(*funcs):
     """ Takes a list of functions and returns a function that is the composition
@@ -84,6 +89,7 @@ def compose(*funcs):
         '_'.join(map(lambda f: getattr(f, '__name__', '???'), funcs))
     return composed
 
+
 def thrush(x, *funcs):
     """ Pipes x through funcs in the given order. That is, applies the first
         func to x, applies the second func to the result, etc.
@@ -96,6 +102,7 @@ def thrush(x, *funcs):
         'no-op'
     """
     return reduce(lambda res, f: f(res), funcs, x)
+
 
 # Modified version of functools.update_wrapper to support partial objects etc.
 def update_wrapper(wrapper, wrapped, assigned=functools.WRAPPER_ASSIGNMENTS,
@@ -116,6 +123,7 @@ def update_wrapper(wrapper, wrapped, assigned=functools.WRAPPER_ASSIGNMENTS,
     # Return the wrapper so this can be used as a decorator via partial()
     return wrapper
 
+
 def maybe(func):
     """ Turns func into a nil-safe function.
 
@@ -134,6 +142,7 @@ def maybe(func):
             return None
         return func(x, *args, **kw)
     return update_wrapper(_maybe, func)
+
 
 def some(pred, coll):
     """ Returns the first element x in coll where pred(x) is logical true.
@@ -155,6 +164,7 @@ def some(pred, coll):
             return elem
     return None
 
+
 def somefx(f, coll):
     """ Returns the first f(x) for x in coll where f(x) is logical true.
         If no such element is found, returns None.
@@ -165,16 +175,19 @@ def somefx(f, coll):
             return res
     return None
 
+
 def keep(pred, coll):
     """ Returns an iterator containing the items x of coll for which pred(x)
         does not return None.
     """
     return (x for x in sequify(coll) if pred(x) is not None)
 
+
 def filter_attr(attr, coll):
     """ Acts like ifilter(attrgetter(attr), coll).
     """
     return (elem for elem in coll if getattr(elem, attr))
+
 
 def sequify(coll):
     """ Returns an iterator on coll, just like iter(coll). dict-like objects
@@ -196,6 +209,7 @@ def sequify(coll):
         return iter(coll.items())
     return iter(coll)
 
+
 def first(coll):
     """ Returns the first item in coll. For dict-like objects, returns the
         first (k, v) tuple. If coll is empty, returns None.
@@ -216,6 +230,7 @@ def first(coll):
 
     raise NotImplementedError("Can't get first item from type %r" % type(coll).__name_)
 
+
 def second(coll):
     "Like first, but returns the second item in coll."
 
@@ -234,6 +249,7 @@ def second(coll):
         return None
 
     raise NotImplementedError("Can't get second item from type %r" % type(coll).__name_)
+
 
 def last(coll):
     "Like first, but returns the last item in coll."
@@ -254,6 +270,7 @@ def last(coll):
         return last
 
     raise NotImplementedError("Can't get last item from type %r" % type(coll).__name_)
+
 
 def rest(coll):
     """ Returns all items in coll but the first. For dict-like objects, returns
@@ -276,6 +293,7 @@ def rest(coll):
 
     raise NotImplementedError("Can't get rest from type %r" % type(coll).__name_)
 
+
 def cons(x, rst):
     """ Returns a new iterable where x is the first element and rst is the rest.
 
@@ -289,6 +307,7 @@ def cons(x, rst):
     yield x
     for elem in rst:
         yield elem
+
 
 def butlast(coll):
     """
@@ -309,12 +328,14 @@ def butlast(coll):
         yield prev
         prev = curr
 
+
 def split_at(n, coll):
     """
     >>> split_at(1, ['Hallo', 'Welt'])
     (['Hallo'], ['Welt'])
     """
     return coll[:n], coll[n:]
+
 
 def take(n, coll):
     """ Returns the first n elements from coll.
@@ -326,6 +347,7 @@ def take(n, coll):
     """
     for elem, _ in izip(sequify(coll), xrange(n)):
         yield elem
+
 
 def drop(n, coll):
     """ Returns all elements in coll but the first n.
@@ -350,11 +372,13 @@ def starchain(coll_of_colls):
         for elem in coll:
             yield elem
 
+
 def mapcat(func, *colls):
     """ Returns the lazy concatenation of the results from map(func, *coll).
         Thus, func should return an iterable.
     """
     return starchain(imap(func, *colls))
+
 
 def partition(seq, n):
     u""" Returns an iterator of elemens in seq, partitioned into tuples
@@ -369,6 +393,7 @@ def partition(seq, n):
         if not part:
             return
         yield part
+
 
 def partition_by(f, coll):
     u""" Splits coll into partitions, beginning a new partition each time f(x)
@@ -427,6 +452,7 @@ def vertical_partition(seq, n):
                 p[ri][ni] = seq.next()
     return p
 
+
 def map_all(funcs, iterable):
     """Takes an iterable of functions (callables) and an iterable.
        Applies every function in the specified order to each element
@@ -441,6 +467,7 @@ def map_all(funcs, iterable):
         iterable = map(func, iterable)
     return iterable
 
+
 def map_keys(func, d):
     """ Returns a new dict with func applied to keys from d, while values
         remain unchanged.
@@ -454,6 +481,7 @@ def map_keys(func, d):
     """
     return dict((func(k), v) for k, v in d.iteritems())
 
+
 def filter_values(pred, d):
     """ Returns a new dict with only the k, v pairs where pred(v) holds.
     >>> D = {'a': 1, 'b': 2, 'c': 3}
@@ -462,6 +490,7 @@ def filter_values(pred, d):
     {'a': 1, 'c': 3}
     """
     return dict((k, v) for k, v in d.iteritems() if pred(v))
+
 
 def interleave(*colls):
     """ Returns an iterator yielding the first element of all colls in turn,
@@ -493,6 +522,7 @@ def interpose(sep, coll):
     """
     return butlast(interleave(coll, repeat(sep)))
 
+
 def strcat(*xs):
     res = ""
     for x in xs:
@@ -501,6 +531,7 @@ def strcat(*xs):
         else:
             res += x
     return res
+
 
 def coalesce(*args):
     """
@@ -512,6 +543,7 @@ def coalesce(*args):
     >>> coalesce()
     """
     return some(lambda x: x is not None, args)
+
 
 def treeseq(is_branch, children_fn, root):
     """ Turns a tree structure into a sequence. `is_branch` should be a unary
