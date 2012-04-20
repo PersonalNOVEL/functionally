@@ -8,6 +8,9 @@ a Clojure, Haskell, Scala or similar background.
 
 Tested in Python 2.6, should work from Python 2.4 onwards.
 
-## License
+## Credits & License
+
+The development of this library was sponsored by
+[PersonalNOVEL](http://www.personalnovel.de/).
 
 Distributed under the MIT license. See the file LICENSE for more information.
