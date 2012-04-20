@@ -436,10 +436,6 @@ def map_all(funcs, iterable):
         ...         [7331, 58008])
         [1337, 80085]
 
-        >>> from lib.utils.dimens import unit, point
-        >>> inch = unit("inch")
-        >>> map_all((float, inch, point, float), [2.54, 1])
-        [182.88, 72.0]
     """
     for func in funcs:
         iterable = map(func, iterable)
