@@ -91,7 +91,7 @@ def compose(*funcs):
         return result
 
     composed.__name__ = 'composed_%s' % \
-        '_'.join(map(lambda f: getattr(f, '__name__', '???'), funcs))
+        '_'.join(imap(lambda f: getattr(f, '__name__', '???'), funcs))
     return composed
 
 
@@ -488,8 +488,8 @@ def map_all(funcs, iterable):
         [1337, 80085]
     """
     for func in funcs:
-        iterable = map(func, iterable)
-    return iterable
+        iterable = imap(func, iterable)
+    return list(iterable)
 
 
 def map_keys(func, d):
