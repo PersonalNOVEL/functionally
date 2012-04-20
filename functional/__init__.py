@@ -25,7 +25,6 @@ def constantly(result):
         'what?'
         >>> deaf_guy("Penguin!", "You know.", those="guy's in suits!")
         'what?'
-
     """
     def constantly_wrapper(*args, **kw):
         return result
@@ -49,6 +48,13 @@ def delegate(func, *args):
 def complement(func):
     """ Returns a function that takes the same arguments as `func`, but returns
         the negated boolean truth value of `func`'s result.
+
+        >>> even = lambda x: x % 2 == 0
+        >>> even(2), even(3)
+        (True, False)
+        >>> odd = complement(even)
+        >>> odd(2), odd(3)
+        (False, True)
     """
     def _complement(*args, **kw):
         return not func(*args, **kw)
@@ -74,7 +80,6 @@ def compose(*funcs):
         >>> str2 = compose(str)
         >>> str2(u'Hello World')
         'Hello World'
-
     """
     funcs = list(funcs)
     assert funcs, 'compose needs at least one argument'
@@ -104,11 +109,12 @@ def thrush(x, *funcs):
     return reduce(lambda res, f: f(res), funcs, x)
 
 
-# Modified version of functools.update_wrapper to support partial objects etc.
 def update_wrapper(wrapper, wrapped, assigned=functools.WRAPPER_ASSIGNMENTS,
                    updated=functools.WRAPPER_UPDATES):
-    """Update a wrapper function to look like the wrapped function.
-    See functools.update_wrapper for full documentation.
+    """ Update a wrapper function to look like the wrapped function.
+
+        Modified version to support partial and other non-__dict__ objects.
+        See functools.update_wrapper for full documentation.
     """
     for attr in assigned:
         try:
@@ -125,7 +131,8 @@ def update_wrapper(wrapper, wrapped, assigned=functools.WRAPPER_ASSIGNMENTS,
 
 
 def maybe(func):
-    """ Turns func into a nil-safe function.
+    """ Turns a unary function into a nil-safe function. That is, if the wrapped
+        function receives None as its argument, it will return None immediately.
 
     >>> float(3)
     3.0
@@ -133,9 +140,10 @@ def maybe(func):
     Traceback (most recent call last):
     ...
     TypeError: float() argument must be a string or a number
-    >>> maybe(float)(3)
+    >>> mfloat = maybe(float)
+    >>> mfloat(3)
     3.0
-    >>> maybe(float)(None)
+    >>> mfloat(None)
     """
     def _maybe(x, *args, **kw):
         if x is None:
@@ -157,7 +165,6 @@ def some(pred, coll):
         'Blue and yellow fish'
         >>> some(fish_are_blue,
         ...      ["Red dog", "Green dog", "Blue dog"])
-
     """
     for elem in coll:
         if pred(elem):
@@ -168,6 +175,11 @@ def some(pred, coll):
 def somefx(f, coll):
     """ Returns the first f(x) for x in coll where f(x) is logical true.
         If no such element is found, returns None.
+
+    >>> import string
+    >>> somefx(string.strip, ['', '     ', '     Hello ', ' '])
+    'Hello'
+    >>> somefx(string.strip, ['', '     ', ' '])
     """
     for elem in coll:
         res = f(elem)
@@ -176,15 +188,23 @@ def somefx(f, coll):
     return None
 
 
-def keep(pred, coll):
+def keep(f, coll):
     """ Returns an iterator containing the items x of coll for which pred(x)
-        does not return None.
+        does not return None. This is in contrast to filter which also
+        throws away falsy values.
+
+    >>> list(keep(lambda x: getattr(x, 'imag', None),
+    ...           [1+1j, 1+0j, 42, 0.0, None, 'foo']))
+    [(1+1j), (1+0j), 42, 0.0]
     """
-    return (x for x in sequify(coll) if pred(x) is not None)
+    return (x for x in sequify(coll) if f(x) is not None)
 
 
 def filter_attr(attr, coll):
     """ Acts like ifilter(attrgetter(attr), coll).
+
+    >>> list(filter_attr('imag', [1+0j, 1+1j, 42+0j]))
+    [(1+1j)]
     """
     return (elem for elem in coll if getattr(elem, attr))
 
@@ -310,7 +330,8 @@ def cons(x, rst):
 
 
 def butlast(coll):
-    """
+    """ Returns an iterable containing all elements in coll except for the last.
+
     >>> list(butlast([1, 2, 3]))
     [1, 2]
     >>> list(butlast({'foo': 1, 'bar': 2}))
@@ -330,11 +351,12 @@ def butlast(coll):
 
 
 def split_at(n, coll):
-    """
+    """ Returns a tuple of (coll[:n], coll[n:]).
+
     >>> split_at(1, ['Hallo', 'Welt'])
     (['Hallo'], ['Welt'])
     """
-    return coll[:n], coll[n:]
+    return (coll[:n], coll[n:])
 
 
 def take(n, coll):
@@ -381,11 +403,18 @@ def mapcat(func, *colls):
 
 
 def partition(seq, n):
-    u""" Returns an iterator of elemens in seq, partitioned into tuples
-         of n elements. If len(seq) is not a multiple of n, the last tuple
-         will contain less than n elements.
+    """ Returns an iterator of elemens in seq, partitioned into tuples
+        of n elements. If len(seq) is not a multiple of n, the last tuple
+        will contain less than n elements.
 
-         partition([1, 2, 3, 4, ...], 2) => [(1, 2), (3, 4), ...]
+    >>> list(partition([1, 2, 3, 4, 5, 6], 2))
+    [(1, 2), (3, 4), (5, 6)]
+    >>> list(partition([1, 2, 3, 4, 5, 6], 3))
+    [(1, 2, 3), (4, 5, 6)]
+    >>> list(partition([1, 2, 3, 4, 5], 2))
+    [(1, 2), (3, 4), (5,)]
+    >>> list(partition([], 2))
+    []
     """
     seq = iter(seq)
     while True:
@@ -406,7 +435,6 @@ def partition_by(f, coll):
     >>> list(partition_by(identity, []))
     []
     """
-    # HACK: OMG, schlecht implementiert. Das geht alles viel einfacher.
     fst = first(coll)
     rst = rest(coll)
     fprev = f(fst)
@@ -428,7 +456,10 @@ def partition_by(f, coll):
 
 
 def vertical_partition(seq, n):
-    """
+    """ Returns an iterator of elemens in seq, partitioned so that elements
+        will appear in the first column, then the second column, etc. If len(seq)
+        is not a multiple of n, the last row will contain less than n columns.
+
         >>> res = vertical_partition(['A', 'A', 'B', 'B', 'C', 'C', 'D', 'D', 'E',
         ...                           'E', 'F', 'F', 'G', 'G', 'H', 'H', 'I'], 4)
         >>> assert res == [['A', 'C', 'E', 'G'],
@@ -448,14 +479,13 @@ def vertical_partition(seq, n):
 
 
 def map_all(funcs, iterable):
-    """Takes an iterable of functions (callables) and an iterable.
-       Applies every function in the specified order to each element
-       in the iterable and returns the result as a list.
+    """ Takes an iterable of functions (callables) and an iterable.
+        Applies every function in the specified order to each element
+        in the iterable and returns the result as a list.
 
         >>> map_all([str, reversed, ''.join, int],
         ...         [7331, 58008])
         [1337, 80085]
-
     """
     for func in funcs:
         iterable = map(func, iterable)
@@ -465,6 +495,7 @@ def map_all(funcs, iterable):
 def map_keys(func, d):
     """ Returns a new dict with func applied to keys from d, while values
         remain unchanged.
+
     >>> D = {'a': 1, 'b': 2}
     >>> map_keys(lambda k: k.upper(), D)
     {'A': 1, 'B': 2}
@@ -477,7 +508,8 @@ def map_keys(func, d):
 
 
 def filter_values(pred, d):
-    """ Returns a new dict with only the k, v pairs where pred(v) holds.
+    """ Returns a new dict with only those k, v pairs where pred(v) holds.
+
     >>> D = {'a': 1, 'b': 2, 'c': 3}
     >>> odd = lambda x: x % 2 != 0
     >>> filter_values(odd, D)
@@ -487,8 +519,8 @@ def filter_values(pred, d):
 
 
 def interleave(*colls):
-    """ Returns an iterator yielding the first element of all colls in turn,
-        then the second , etc. until the shortest coll runs out.
+    """ Returns an iterable yielding the first element of all colls in turn,
+        then the second, etc. until the shortest coll is exhausted.
 
     >>> list(interleave([1, 2, 3], [4, 5]))
     [1, 4, 2, 5]
@@ -507,7 +539,7 @@ def interleave(*colls):
 
 
 def interpose(sep, coll):
-    """ Returns all elements in coll separated by sep
+    """ Returns an iterable containing all elements in coll separated by sep.
 
     >>> list(interpose('and', [1, 2, 3]))
     [1, 'and', 2, 'and', 3]
@@ -541,7 +573,8 @@ def strcat(*xs):
 
 
 def coalesce(*args):
-    """
+    """ Returns the first argument that is not None.
+
     >>> coalesce(None, None, 1, 2, None)
     1
     >>> coalesce(3, 2, 1)
