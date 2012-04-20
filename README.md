@@ -1,16 +1,13 @@
 # functionally
 
-This is simple but extensive functional Python library suitable for most purposes.
+A simple but extensive library containing loads of utility functions to make
+functional programming in Python fun again. A must-have for developers with
+a Clojure, Haskell, Scala or similar background.
 
-It contains the functions `butlast`, `coalesce`, `complement`,
-`compose`, `cons`, `const`, `constantly`, `delegate`, `drop`,
-`filter_attr`, `filter_values`, `first`, `identity`, `interleave`,
-`interpose`, `keep`, `last`, `map_all`, `mapcat`, `map_keys`, `maybe`,
-`partition`, `partition_by`, `rest`, `second`, `sequify`, `some`,
-`somefx`, `split_at`, `starchain`, `strcat`, `take`, `thrush`,
-`treeleaves`, `treeseq`, `vertical_partition` and an updated
-`update_wrapper` which can cope with partials.
+## Compatibility
 
-# Compatibility
+Tested in Python 2.6, should work from Python 2.4 onwards.
 
-It is tested in Python 2.6
+## License
+
+Distributed under the MIT license. See the file LICENSE for more information.
