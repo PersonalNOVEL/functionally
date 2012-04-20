@@ -389,7 +389,7 @@ def partition(seq, n):
     """
     seq = iter(seq)
     while True:
-        part = list(islice(seq, n))
+        part = tuple(islice(seq, n))
         if not part:
             return
         yield part
@@ -436,15 +436,9 @@ def vertical_partition(seq, n):
         ...                ['B', 'D', 'F', 'H'],
         ...                ['B', 'E', 'G', 'I'],
         ...                ['C']]
-
     """
-    p = list(partition(seq, n))
-
-    def mk_seq(lst):
-        for i in lst:
-            yield i
-
-    seq = mk_seq(seq)
+    p = [list(part) for part in partition(seq, n)]
+    seq = iter(seq)
 
     for ni in xrange(n):
         for ri in xrange(len(p)):
