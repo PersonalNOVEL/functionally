@@ -524,12 +524,25 @@ def interpose(sep, coll):
 
 
 def strcat(*xs):
+    """ Concatenates all strings passed as positional arguments.
+
+    >>> strcat('Brave ', 'New ', 'World', '!')
+    'Brave New World!'
+    >>> strcat('char', u'unicode')
+    u'charunicode'
+    >>> strcat()
+    ''
+    >>> strcat('Value: ', 1)
+    Traceback (most recent call last):
+    ...
+    TypeError: strcat arguments must be strings, not int
+    """
     res = ""
     for x in xs:
-        if isinstance(res, unicode):
-            res += unicode(x)
-        else:
-            res += x
+        if not isinstance(x, basestring):
+            raise TypeError("strcat arguments must be strings, "
+                            "not %s" % type(x).__name__)
+        res += x
     return res
 
 
