@@ -1,4 +1,4 @@
-# functional
+# functionally
 
 This is simple but extensive functional Python library suitable for most purposes.
 

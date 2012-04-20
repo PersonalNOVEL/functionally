@@ -2,11 +2,11 @@
 
 from distutils.core import setup
 
-setup(name='functional',
+setup(name='functionally',
       version='1.0',
       description='functional library',
       author='Daniel Werner',
       author_email='dwerner@personalnovel.de',
-      packages=['functional'],
+      packages=['functionally'],
       license="MIT",
      )
