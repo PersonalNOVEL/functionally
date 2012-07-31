@@ -6,7 +6,7 @@ from distutils.core import setup
 setup(name='functionally',
       version='1.0.1',
       description='Simple & extensive functional programming library',
-      long_description=open(os.path.join(os.path.dirname(__file__), 'README.md')).read(),
+      #long_description=open(os.path.join(os.path.dirname(__file__), 'README.md')).read(),
       author='Daniel Werner',
       author_email='dwerner@personalnovel.de',
       url='http://github.com/PersonalNOVEL/functionally',
