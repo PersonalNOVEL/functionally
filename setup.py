@@ -4,7 +4,7 @@ import os
 from distutils.core import setup
 
 setup(name='functionally',
-      version='1.0',
+      version='1.0.1',
       description='Simple & extensive functional programming library',
       long_description=open(os.path.join(os.path.dirname(__file__), 'README.md')).read(),
       author='Daniel Werner',
